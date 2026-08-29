@@ -63,6 +63,7 @@ function updatePageResults(maxChars = 80) {
     
   elements.resultList.innerHTML = resultItems;
 }
+
 /**
  * Insert character at cursor position
  * @param {string} elementId - Target element ID
@@ -92,6 +93,7 @@ function isDataAvailable() {
          typeof tangraphScores === 'object' &&
          Object.keys(tangraphInfo).length > 0;
 }
+
 /**
  * Update results list based on current filters
  */
@@ -102,8 +104,10 @@ function updateResultsList() {
   }
 
   const strokeValue = elements.strokeEntryField?.value || '';
+  // if code value length is less than 3, then do nothing.
+  const isUnder4Digits = !!strokeValue && (/^\d{1,3}$/.test(strokeValue));
 
-  if (!strokeValue) {
+  if (!strokeValue || isUnder4Digits) {
     // Default sorting by score when no input
     results = Object.keys(tangraphInfo)
       .filter(key => tangraphScores[key] > 0)
@@ -117,19 +121,38 @@ function updateResultsList() {
   if (elements.strokeBeginsWith?.checked) strokesRegex = `^${strokesRegex}`;
   if (elements.strokeEndsWith?.checked) strokesRegex += '$';
   
+  // specail code patterns (LFW code or Four Corner code)
+  const isValidFourCode = strokeValue.length >= 4 && /^\d+$/.test(strokeValue);
+  const isLFWCode = strokeValue.length === 5 && strokeValue.startsWith("L");
+  const isSpecialCode = isValidFourCode || isLFWCode;
+  
   const startsWithSeq = [];
   const containsSeq = [];
   
   try {
     const pattern = new RegExp(strokesRegex);
     const startPattern = new RegExp(`^${strokesRegex}`);
-
+    
+    let logCount = 0; 
     Object.entries(tangraphInfo).forEach(([tangraph, info]) => {
-      const strokeSeq = info[2];
-      if (startPattern.test(strokeSeq)) {
-        startsWithSeq.push(tangraph);
-      } else if (pattern.test(strokeSeq)) {
-        containsSeq.push(tangraph);
+      // - If the input code (=strokeValue) is a valid LFW code or 4+ digit's Four Corner 
+      //   code, search for the corresponding character from info[3] using them as keys.
+      // - Otherwise, treat it as an existing radical code, and 
+      //   search for the corresponding character from info[2] based on that radical. 
+      if (isSpecialCode) {
+          const strokeSeq = info[3];
+          const codes = strokeSeq.split(/\s+/);
+          const isMatch = codes.some(code => startPattern.test(code));
+          if (isMatch) {
+            startsWithSeq.push(tangraph);
+          }
+      } else {
+        const strokeSeq = info[2];
+        if (startPattern.test(strokeSeq)) {
+          startsWithSeq.push(tangraph);
+        } else if (pattern.test(strokeSeq)) {
+          containsSeq.push(tangraph);
+        }
       }
     });
 
@@ -164,16 +187,36 @@ function insertStroke(stroke) {
 }
 
 /**
- * Update stroke entry field and results
+ * Updates the stroke entry field
  */
 function updateStrokeEntry() {
   if (!elements.strokeEntryField) return;
   
-  elements.strokeEntryField.value = 
-    elements.strokeEntryField.value
-      .toUpperCase()
-      .replace(/[^A-Q.*]/g, '');
-updateResultsList();
+  let val = elements.strokeEntryField.value.toUpperCase();
+
+  // 1. If the first character is 'L': Allow 'L' followed by up to 4 digits (L0000 format).
+  if (val.startsWith('L')) {
+    const match = val.match(/^L[0-9]{0,4}/);
+    val = match ? match[0] : 'L';
+  }
+  // 2. If the first character is a digit: Allow digits only, up to a maximum of 6 digits.
+  else if (/^[0-9]/.test(val)) {
+    const match = val.match(/^[0-9]{0,6}/);
+    val = match ? match[0] : '';
+  }
+  // 3. If the first character is between 'A' and 'Q': Allow alphabetic characters only (no length limit, numbers prohibited).
+  else if (/^[A-Q]/.test(val)) {
+    const match = val.match(/^[A-Q]+/);
+    val = match ? match[0] : '';
+  }
+  // 4. Clear the input for any other unauthorized characters.
+  else {
+    val = '';
+  }
+
+  // Reflect the validated value in the input field and update the results list.
+  elements.strokeEntryField.value = val;
+  updateResultsList();
 }
 
 /**

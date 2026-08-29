@@ -614,7 +614,7 @@ function generateTypstOutput(chars, lang, readingSystem) {
     const charList = mergeConnectedItems(processedChars).map(char => processTypstBrackets(char));
     
     // 处理header - 添加LFW上标
-    const headerWithLFW = [...chars].map(char =>  getCharWithFourCode(char) + getCharWithLFW(char)).join('');
+    const headerWithLFW = [...chars].map(char => getCharWithLFW(char) + getCharWithFourCode(char)).join('');
     
     // 处理源字符（添加LFW上标）- 仅用于header
     const charsWithLFW = processedChars.map(char => {
@@ -832,7 +832,7 @@ function generateObsidianOutput(chars, lang, readingSystem) {
     });
 
     // 添加LFW上标到字符
-    const charsWithLFW = [...chars].map(char => getCharWithFourCode(char) + getCharWithLFW(char)).join('');
+    const charsWithLFW = [...chars].map(char => getCharWithLFW(char) + getCharWithFourCode(char)).join('');
 
     // 处理标点符号前的空格
     function joinWithSmartSpacing(items) {
@@ -889,14 +889,14 @@ function generatePlainTextOutput(chars, lang, readingSystem) {
         // 处理字符（添加LFW上标）
         let charWithLFW = char;
         if (!char.includes('-') && !char.includes('=')) {
-            charWithLFW = getCharWithFourCode(char) + getCharWithLFW(char);
+            charWithLFW = getCharWithLFW(char) + getCharWithFourCode(char);
         } else {
             // 处理多字符连接情况
             const parts = char.split(/[-=]/);
             const connectors = char.match(/[-=]/g);
             
             charWithLFW = parts.map((part, idx) => {
-                const partWithLFW = getCharWithFourCode(part) + getCharWithLFW(part);
+                const partWithLFW = getCharWithLFW(part) + getCharWithFourCode(part);
                 return idx < parts.length - 1 ? 
                     `${partWithLFW}${connectors[idx]}` : partWithLFW;
             }).join('');
@@ -1196,7 +1196,8 @@ const i18nData = {
         "plain-text": "纯文本",
          "show-lfw": "显示编号：",
         "lfw-label": "LFW",
-        "fourcorner-label": "四角号码"
+        "fourcorner-label": "四角号码",
+        "stroke-entry-placeholder": "四角号码, LFW序号(四位), 部件编码(A-Q)"
     },
     en: {
         "title": "Tangut Script<br>Annotation Tool α",
@@ -1215,7 +1216,8 @@ const i18nData = {
         "plain-text": "Plain Text",
         "show-lfw": "Show Numbers:",
         "lfw-label": "LFW",
-        "fourcorner-label": "Four Corner"
+        "fourcorner-label": "Four Corner",
+        "stroke-entry-placeholder": "Four Corner, LFW(0000-9999), Radical(A-Q)"
     },
     ja: {
         "title": "西夏文字<br>注釈ツール α",
@@ -1234,7 +1236,8 @@ const i18nData = {
         "plain-text": "テキスト形式",
         "show-lfw": "番号表示：",
         "lfw-label": "LFW",
-        "fourcorner-label": "四角号碼"
+        "fourcorner-label": "四角号碼",
+        "stroke-entry-placeholder": "四角号碼, LFW(0000-9999), 部首番号(A-Q)"
     },
     ru: {
         "title": "Тангутское письмо<br>Инструмент для глоссирования α",
@@ -1253,7 +1256,8 @@ const i18nData = {
         "plain-text": "Простой текст",
         "show-lfw": "Показать номера:",
         "lfw-label": "LFW",
-        "fourcorner-label": "Четырём Углам"
+        "fourcorner-label": "Четырём Углам",
+        "stroke-entry-placeholder": "Четырём Углам, LFW(0000-9999), Корень(A-Q)"
     }
 };
 
@@ -1263,8 +1267,12 @@ function updatePageText(lang) {
     elements.forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (i18nData[lang][key]) {
-            if (element.tagName === 'BUTTON' || element.tagName === 'LABEL' || element.tagName === 'SPAN') {
-                element.textContent = i18nData[lang][key];
+            if (element.tagName === 'BUTTON' || element.tagName === 'LABEL' || element.tagName === 'SPAN' || element.tagName === 'INPUT') {
+                if (element.getAttribute('placeholder')) {
+                    element.placeholder = i18nData[lang][key];
+                } else {
+                    element.textContent = i18nData[lang][key];
+                }
             } else {
                 element.innerHTML = i18nData[lang][key];
             }
@@ -1323,26 +1331,27 @@ function toSuperscript(num) {
 function getCharWithLFW(char) {
     // 检查是否启用LFW编号显示
     const showLFW = document.getElementById('show-lfw').checked;
-    const showFourCorner = document.getElementById('show-fourcorner').checked;
     const entry = stmts.getCharData(char)
 
     if (showLFW && !!entry && entry.LFW) {
-        const delimiter = showFourCorner ? "´" : char;
-        return delimiter + "ᴸ"+ toSuperscript(entry.LFW);
+        return char + toSuperscript(entry.LFW);
     }
-    return showFourCorner ? "" : char;
+    return "";
 }
 
 // get the four-corner with superscript
 function getCharWithFourCode(char) {
     // check if displays four-corner code
+    const showLFW = document.getElementById('show-lfw').checked;
     const showFourCorner = document.getElementById('show-fourcorner').checked;
     const entry = stmts.getCharData(char)
 
     if (showFourCorner && !!entry && entry.fourCode) {
-        return char + toSuperscript(entry.fourCode);
+        const delimiter = showLFW ? "´" : char;
+        return delimiter + toSuperscript(entry.fourCode);
     }
-    return "";
+    return showLFW ? "" : char;
+
 }
 
 // 修改现有函数中处理字符显示的部分

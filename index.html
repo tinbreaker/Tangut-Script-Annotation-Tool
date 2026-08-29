@@ -248,10 +248,11 @@
         }
 
         #copy-btn {
-            width: 100%;
-            max-width: 400px;
-            margin: 10px auto;
+            width: 96%;
+            max-width: 96%;
+            padding: clamp(20px, 3vw, 30px);         
             display: flex;
+            margin: 0 auto;
             align-items: center;
             justify-content: center;
         }
@@ -380,6 +381,10 @@
             visibility: visible;
         }
 
+        .stroke-button:hover img {
+            filter: brightness(0) invert(1);
+        }        
+
         .checkbox-wrapper {
             display: flex;
             align-items: center;
@@ -401,17 +406,18 @@
             white-space: nowrap;
         }
 
-        .clear-strokes {
+        .btn-clear, .clear-strokes {
             padding: 8px;
-            background: #ff4444;
-            color: white;
-            border: none;
+            background-color: #f1f1f1 !important; /* lightgray */
+            color: #6c757d !important;        
+            border: 1px solid #dee2e6 !important;
             border-radius: var(--border-radius);
             cursor: pointer;
         }
 
-        .clear-strokes:hover {
-            background: #cc0000;
+        .btn-clear:hover, .clear-strokes:hover {
+            background-color: #d9dcef !important;
+            color: #495057 !important;          
         }
 
         .results-wrapper li {
@@ -454,32 +460,65 @@
             border-color: var(--primary-color);
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 768px) {
             .language-selector {
                 position: static;
                 justify-content: flex-end;
                 margin-bottom: 15px;
             }
-        }
 
-        @media (max-width: 767px) {
+            body {
+                min-width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 5px !important;
+                overflow-x: hidden !important; 
+            }
+    
             .container {
-                padding: 15px;
+                min-width: 100% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 10px !important;
+                box-sizing: border-box !important;
+            }
+
+            .results-viewport {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            #stroke-tab {
+                min-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 10px !important;
             }
 
             .controls {
                 flex-direction: column;
                 align-items: flex-start;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
 
             .radio-group {
-                width: 100%;
+                width: 100% !important;
             }
-        } 
+
+            #stroke-entry-field {
+                font-size: 11px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+        }
 
         @media (max-width: 450px) {
             :root {
-                --standard-padding: 10px;
+                --standard-padding: 10px !important;
             }
         }
     </style>
@@ -502,7 +541,7 @@
             <textarea id="output" placeholder="𘉰𘟀𘅇𘉪" rows="3" style="font-size: 24px; line-height: 1.4;"></textarea>
             <div class="button-group">
                 <button onclick="handleGenerate()" data-i18n="generate">生成</button>
-                <button onclick="clearAll()" data-i18n="clear">清除</button>
+                <button class="btn-clear" onclick="clearAll()" data-i18n="clear">清除</button>
             </div>
         </div>
 
@@ -524,7 +563,7 @@
                     <label onclick="toggleCheckbox('stroke-begins-with')">^</label>
                     <input type="checkbox" id="stroke-begins-with"/>
                 </div>
-                <input type="text" id="stroke-entry-field" />
+                <input type="text" id="stroke-entry-field" data-i18n="stroke-entry-placeholder" placeholder="Four Corner,LFW(L+0001~9999),Stoke Entry"/>
                 <div class="checkbox-wrapper" title="ends with">
                     <input type="checkbox" id="stroke-ends-with"/>
                     <label onclick="toggleCheckbox('stroke-ends-with')">$</label>
@@ -537,7 +576,7 @@
             </div>
             
         </div>
-        <button onclick="clearStrokeEntryField();" aria-label="清除笔画输入">
+        <button onclick="clearStrokeEntryField();" class="clear-strokes" aria-label="清除笔画输入">
             <span data-i18n="clear">清除</span>
         </button>
     </div>
