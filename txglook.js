@@ -63,6 +63,7 @@ function updatePageResults(maxChars = 80) {
     
   elements.resultList.innerHTML = resultItems;
 }
+
 /**
  * Insert character at cursor position
  * @param {string} elementId - Target element ID
@@ -92,6 +93,7 @@ function isDataAvailable() {
          typeof tangraphScores === 'object' &&
          Object.keys(tangraphInfo).length > 0;
 }
+
 /**
  * Update results list based on current filters
  */
@@ -185,31 +187,34 @@ function insertStroke(stroke) {
 }
 
 /**
- * Update stroke entry field and results
+ * Updates the stroke entry field
  */
 function updateStrokeEntry() {
   if (!elements.strokeEntryField) return;
   
   let val = elements.strokeEntryField.value.toUpperCase();
 
-  // If the first character is a digit, remove all alphabetic characters.
-  if (/^[0-9]/.test(val)) {
-    val = val.replace(/[A-Z]/g, '');
+  // 1. If the first character is 'L': Allow 'L' followed by up to 4 digits (L0000 format).
+  if (val.startsWith('L')) {
+    const match = val.match(/^L[0-9]{0,4}/);
+    val = match ? match[0] : 'L';
+  }
+  // 2. If the first character is a digit: Allow digits only, up to a maximum of 6 digits.
+  else if (/^[0-9]/.test(val)) {
+    const match = val.match(/^[0-9]{0,6}/);
+    val = match ? match[0] : '';
+  }
+  // 3. If the first character is between 'A' and 'Q': Allow alphabetic characters only (no length limit, numbers prohibited).
+  else if (/^[A-Q]/.test(val)) {
+    const match = val.match(/^[A-Q]+/);
+    val = match ? match[0] : '';
+  }
+  // 4. Clear the input for any other unauthorized characters.
+  else {
+    val = '';
   }
 
-  // Allow A-Q, numbers, '.', '*', and 'L'
-  val = val.replace(/[^A-Q0-9.*L]/g, '');
-
-  // Allow 'L0000-L9999' (including typing states like L1, L12...), 
-  // but disallow other combinations of alphabets and numbers.
-  if (/[A-Z]/.test(val) && /[0-9]/.test(val)) {
-    if (!/^L\d{0,4}$/.test(val)) {
-      val = val.replace(/[0-9]/g, '');
-    }
-  }
-
-  // Apply the ones that passed the check, then search for the corresponding 
-  // character using it and reflect it on the screen.
+  // Reflect the validated value in the input field and update the results list.
   elements.strokeEntryField.value = val;
   updateResultsList();
 }
