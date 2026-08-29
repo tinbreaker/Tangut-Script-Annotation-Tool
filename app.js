@@ -614,7 +614,7 @@ function generateTypstOutput(chars, lang, readingSystem) {
     const charList = mergeConnectedItems(processedChars).map(char => processTypstBrackets(char));
     
     // 处理header - 添加LFW上标
-    const headerWithLFW = [...chars].map(char =>  getCharWithFourCode(char) + getCharWithLFW(char)).join('');
+    const headerWithLFW = [...chars].map(char => getCharWithLFW(char) + getCharWithFourCode(char)).join('');
     
     // 处理源字符（添加LFW上标）- 仅用于header
     const charsWithLFW = processedChars.map(char => {
@@ -832,7 +832,7 @@ function generateObsidianOutput(chars, lang, readingSystem) {
     });
 
     // 添加LFW上标到字符
-    const charsWithLFW = [...chars].map(char => getCharWithFourCode(char) + getCharWithLFW(char)).join('');
+    const charsWithLFW = [...chars].map(char => getCharWithLFW(char) + getCharWithFourCode(char)).join('');
 
     // 处理标点符号前的空格
     function joinWithSmartSpacing(items) {
@@ -889,14 +889,14 @@ function generatePlainTextOutput(chars, lang, readingSystem) {
         // 处理字符（添加LFW上标）
         let charWithLFW = char;
         if (!char.includes('-') && !char.includes('=')) {
-            charWithLFW = getCharWithFourCode(char) + getCharWithLFW(char);
+            charWithLFW = getCharWithLFW(char) + getCharWithFourCode(char);
         } else {
             // 处理多字符连接情况
             const parts = char.split(/[-=]/);
             const connectors = char.match(/[-=]/g);
             
             charWithLFW = parts.map((part, idx) => {
-                const partWithLFW = getCharWithFourCode(part) + getCharWithLFW(part);
+                const partWithLFW = getCharWithLFW(part) + getCharWithFourCode(part);
                 return idx < parts.length - 1 ? 
                     `${partWithLFW}${connectors[idx]}` : partWithLFW;
             }).join('');
@@ -1331,26 +1331,27 @@ function toSuperscript(num) {
 function getCharWithLFW(char) {
     // 检查是否启用LFW编号显示
     const showLFW = document.getElementById('show-lfw').checked;
-    const showFourCorner = document.getElementById('show-fourcorner').checked;
     const entry = stmts.getCharData(char)
 
     if (showLFW && !!entry && entry.LFW) {
-        const delimiter = showFourCorner ? "´" : char;
-        return delimiter + "ᴸ"+ toSuperscript(entry.LFW);
+        return char + toSuperscript(entry.LFW);
     }
-    return showFourCorner ? "" : char;
+    return "";
 }
 
 // get the four-corner with superscript
 function getCharWithFourCode(char) {
     // check if displays four-corner code
+    const showLFW = document.getElementById('show-lfw').checked;
     const showFourCorner = document.getElementById('show-fourcorner').checked;
     const entry = stmts.getCharData(char)
 
     if (showFourCorner && !!entry && entry.fourCode) {
-        return char + toSuperscript(entry.fourCode);
+        const delimiter = showLFW ? "´" : char;
+        return delimiter + toSuperscript(entry.fourCode);
     }
-    return "";
+    return showLFW ? "" : char;
+
 }
 
 // 修改现有函数中处理字符显示的部分
