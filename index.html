@@ -213,20 +213,20 @@
         }
 
         button {
-        padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2vw, 20px);
-        border: none;
-        border-radius: var(--border-radius);
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: clamp(14px, 1.6vw, 16px);
-        height: 40px; /* 添加固定高度 */
-        line-height: 1; /* 确保文本垂直居中 */
-        display: flex; /* 使用 flex 布局 */
-        align-items: center; /* 垂直居中 */
-        justify-content: center; /* 水平居中 */
+            padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2vw, 20px);
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(14px, 1.6vw, 16px);
+            height: 40px; /* 添加固定高度 */
+            line-height: 1; /* 确保文本垂直居中 */
+            display: flex; /* 使用 flex 布局 */
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
         }
 
         button:hover {
@@ -279,13 +279,18 @@
         }
 
         .output-section {
-            width: 100%;
+            max-width: 100%;
+            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .output-section textarea {
             width: 100%;
+            min-width: 0;
+            max-width: 100%;
             min-height: 200px;
             height: clamp(200px, 25vh, 300px);
+            box-sizing: border-box;
         }
 
         /* 美化 stroke-tab 样式 */
@@ -406,7 +411,7 @@
             white-space: nowrap;
         }
 
-        .btn-clear, .clear-strokes {
+        .btn-undo, .undo-strokes {
             padding: 8px;
             background-color: #f1f1f1 !important; /* lightgray */
             color: #6c757d !important;        
@@ -415,7 +420,7 @@
             cursor: pointer;
         }
 
-        .btn-clear:hover, .clear-strokes:hover {
+        .btn-undo:hover, .undo-strokes:hover {
             background-color: #d9dcef !important;
             color: #495057 !important;          
         }
@@ -438,6 +443,88 @@
             font-size: 18px; /* Default font size */
         }
 
+        /*field clear button START*/
+        .has-clear {
+            position: relative;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        /* common setting for input area */
+        .has-clear > input[type="text"],
+        .has-clear > textarea {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* base setting for field clear button*/
+        .has-clear > .field-clear-btn {
+            position: absolute;
+            z-index: 2;
+            display: none;
+            box-sizing: border-box;
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            color: #777;
+            font-size: 20px;
+            line-height: 26px;
+            text-align: center;
+            cursor: pointer;
+            transform: none;
+        }
+
+        /* show clear button if not empty */
+        .has-clear.has-value > .field-clear-btn {
+            display: block;
+        }
+
+        /* input: Right and Middle (Vertical) */
+        .has-clear > input[type="text"] ~ .field-clear-btn {
+            top: 47%;
+            right: 45px;
+            transform: translateY(-50%);
+        }
+
+        /* textarea: top right */
+        .has-clear > textarea ~ .field-clear-btn {
+            top: 50px;
+            right: 6px;
+        }
+
+        .has-clear > textarea ~ .field-clear-btn {
+            font-size: 30px;
+            line-height: 30px;
+        }
+
+        /* Prevent input text from overlapping with the button */
+        .has-clear > input[type="text"] {
+            padding-right: 30px;
+        }
+
+        .has-clear > textarea {
+            padding-right: 26px;
+        }
+
+        @media screen and (max-width: 767px) and (orientation: portrait) {
+            .has-clear > input[type="text"] ~ .field-clear-btn {
+                right: 40px;
+            }
+            .has-clear > textarea ~ .field-clear-btn {
+                top: 42px !important;
+            }
+        } 
+        /*field clear button END*/
+          
         .language-selector {
             position: absolute;
             top: 20px;
@@ -507,12 +594,11 @@
             }
 
             #stroke-entry-field {
-                font-size: 11px;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
+                box-sizing: border-box;
+                width: calc(100% - 20px) !important;
                 min-width: 0 !important;
-                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 16px !important;                
             }
         }
 
@@ -536,12 +622,13 @@
 
         <h1 data-i18n="title">西夏文<br>自动标注工具 α</h1>
         
-        <div class="input-section">
+        <div class="input-section has-clear">
             <label for="output" data-i18n="input-label">输入字符：</label>
             <textarea id="output" placeholder="𘉰𘟀𘅇𘉪" rows="3" style="font-size: 24px; line-height: 1.4;"></textarea>
+            <input type="hidden" id="outputHisState">
             <div class="button-group">
                 <button onclick="handleGenerate()" data-i18n="generate">生成</button>
-                <button class="btn-clear" onclick="clearAll()" data-i18n="clear">清除</button>
+                <button class="btn-undo" onclick="undoStrokeOutput()" data-i18n="undo">撤销</button>
             </div>
         </div>
 
@@ -558,7 +645,7 @@
         </div>
 
         <div class="tab-pane" id="stroke-tab">
-            <div class="stroke-entry-container">
+            <div class="stroke-entry-container has-clear">
                 <div class="checkbox-wrapper" title="starts with">
                     <label onclick="toggleCheckbox('stroke-begins-with')">^</label>
                     <input type="checkbox" id="stroke-begins-with"/>
@@ -576,9 +663,6 @@
             </div>
             
         </div>
-        <button onclick="clearStrokeEntryField();" class="clear-strokes" aria-label="清除笔画输入">
-            <span data-i18n="clear">清除</span>
-        </button>
     </div>
         
         <div class="controls">
@@ -635,9 +719,9 @@
             </div>
         </div>
 
-        <div class="output-section">
+        <div class="output-section has-clear">
             <label for="output-text" data-i18n="format-output">格式输出：</label>
-            <textarea id="output-text" style="font-family: Fira Sans, 'Tangut N4694', 'Noto Serif Tangut', 'Noto Serif SC', sans-serif;"></textarea>
+            <textarea id="output-text" style="font-family: Fira Sans, 'Tangut N4694', 'Noto Serif Tangut', 'Noto Serif SC', sans-serif; transform: translateY(8%); margin-bottom:30px;"></textarea>
             <button onclick="copyOutput()" id="copy-btn" data-i18n="copy-clipboard">复制到剪贴板</button>
         </div>
     </div>

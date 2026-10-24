@@ -95,7 +95,7 @@ let db, stmts;
                     if (lim == 1) {
                         if (!!results && results.length > 0) {
                             return results[0];
-                        } else{
+                        } else {
                             return null;
                         }
                     }
@@ -108,6 +108,9 @@ let db, stmts;
                 }
             };
         })();
+
+        // add Field Clear Button into target areas.
+        addFieldClearButtons();
 
         // Start your application logic here (e.g., render UI)
     } catch (error) {
@@ -561,8 +564,11 @@ function generate() {
         .filter(line => line)
         .map(line => generateFormattedOutput(line, lang, readingSystem, outputFormat));
 
-    document.getElementById('output-text').value = outputs.join('\n\n');
-
+    const field = document.getElementById('output-text');
+    field.value = outputs.join('\n\n');
+    // show Field Clear Button
+    updateFieldClearState(field);
+    
     // 计算并输出总用时
     const endTime = performance.now();
     const totalTime = endTime - startTime;
@@ -1034,17 +1040,13 @@ function getConnectedReading(char, readingSystem) {
     }).join('');
 }
 
-function clearAll() {
-    document.getElementById('output').value = '';
-    document.getElementById('output-text').value = '';
-}
 
 function copyOutput() {
     const output = document.getElementById('output-text');
     if (!output.value) {
         alert('没有可复制的内容');
         return;
-}
+    }
 
     output.select();
     document.execCommand('copy');
@@ -1055,13 +1057,17 @@ function copyOutput() {
         copyBtn.textContent = '复制';
     }, 1000);
 }
+
 function handleGenerate() {
     const input = document.getElementById('output');
     if (!input.value.trim() && input.placeholder) {
         input.value = input.placeholder;
+        updateFieldClearState(input);
+        document.getElementById('outputHisState').value = JSON.stringify([input.value]);
     }
     generate();
 }
+
 const strokeData = [
     { code: 'A', img: 'img/A.png' },
     { code: 'B', img: 'img/B.png' },
@@ -1131,12 +1137,34 @@ function clearStrokeEntryField() {
 // 添加清除所有功能
 function clearAll() {
     document.getElementById('output').value = '';
+    document.getElementById('outputHisState').value = '';
     document.getElementById('output-text').value = '';
     document.getElementById('stroke-entry-field').value = '';
     document.getElementById('result-list').innerHTML = '';
     // 重置复选框
     document.getElementById('stroke-begins-with').checked = false;
     document.getElementById('stroke-ends-with').checked = false;
+}
+
+// Undo last stroke in the `output`textarea.
+function undoStrokeOutput() {
+    const output = document.getElementById("output");
+    if (!output.value?.length) {
+        return;
+    }
+    const outputHisState = document.getElementById("outputHisState");
+    const  history = !outputHisState?.value?.length 
+     ? [output.value] : JSON.parse(outputHisState.value);
+    if (!!history.length >= 1 ) {
+        history.pop();
+        output.value = history?.length ? history[history.length - 1] : "";
+        // show Field Clear Button
+        updateFieldClearState(output);
+        // save change value into hidden
+        outputHisState.value = history.length ? JSON.stringify(history) : "";
+    } else {
+        outputHisState.value = "";
+    }  
 }
 
 // 添加 updateSearchResults 函数定义
@@ -1183,7 +1211,7 @@ const i18nData = {
         "title": "西夏文<br>自动标注工具 α",
         "input-label": "输入字符：",
         "generate": "生成",
-        "clear": "清除",
+        "undo": "撤销",
         "language-choice": "语言选择：",
         "chinese": "中文",
         "english": "English",
@@ -1203,7 +1231,7 @@ const i18nData = {
         "title": "Tangut Script<br>Annotation Tool α",
         "input-label": "Input Characters:",
         "generate": "Generate",
-        "clear": "Clear",
+        "undo": "Undo",
         "language-choice": "Language:",
         "chinese": "Chinese",
         "english": "English",
@@ -1223,7 +1251,7 @@ const i18nData = {
         "title": "西夏文字<br>注釈ツール α",
         "input-label": "入力：",
         "generate": "生成",
-        "clear": "クリア",
+        "undo": "元に戻す",
         "language-choice": "言語選択：",
         "chinese": "中国語",
         "english": "英語",
@@ -1243,7 +1271,7 @@ const i18nData = {
         "title": "Тангутское письмо<br>Инструмент для глоссирования α",
         "input-label": "Ввод знаков тангутского письма:",
         "generate": "Создать глоссы",
-        "clear": "Очистить",
+        "undo": "Отменить",
         "language-choice": "Выбор языка:",
         "chinese": "Китайский",
         "english": "Английский",
@@ -1385,6 +1413,47 @@ function toggleDarkMode() {
     if (themeBtn) {
         themeBtn.textContent = newTheme === 'dark' ? '☀️ 亮色模式' : '🌙 暗黑模式';
     }
+}
+
+function addFieldClearButtons() {    
+    document.querySelectorAll(".has-clear").forEach(div => {
+    const field = div.querySelector(
+     ':scope > input[type="text"], :scope > textarea'
+    );
+
+    if (!field) return;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "field-clear-btn";
+    btn.textContent = "×";
+    btn.setAttribute("aria-label", "入力内容をクリア");
+
+    div.appendChild(btn);
+
+    const update = () => {
+        div.classList.toggle("has-value", !!field.value);
+    };
+
+    btn.addEventListener("click", () => {
+        if (field.matches('input[type="text"]#stroke-entry-field')) {
+            clearStrokeEntryField();
+        } else if (field === document.getElementById('output')) {
+            clearAll();
+        } else {
+            field.value = "";
+        }
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        update();
+        field.focus();
+    });
+
+    field.addEventListener("input", update);
+    field.addEventListener("change", update);
+
+    update();
+    });    
 }
 
 // 初始化暗黑模式按钮
