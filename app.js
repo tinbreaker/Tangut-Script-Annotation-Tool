@@ -109,9 +109,6 @@ let db, stmts;
             };
         })();
 
-        // add Field Clear Button into target areas.
-        addFieldClearButtons();
-
         // Start your application logic here (e.g., render UI)
     } catch (error) {
         console.error('Failed to initialize database:', error);
@@ -1091,46 +1088,46 @@ const strokeData = [
 ];
 
 function createStrokeButtons() {
-const container = document.getElementById('stroke-buttons');
-// 清空容器,防止重复添加
-container.innerHTML = '';
+    const container = document.getElementById('stroke-buttons');
+    // 清空容器,防止重复添加
+    container.innerHTML = '';
 
-strokeData.forEach(stroke => {
-    const button = document.createElement('button');
-    button.className = 'stroke-button';
-    button.onclick = () => insertStroke(stroke.code);
-    
-    // 使用图片显示笔画
-    const img = document.createElement('img');
-    img.src = stroke.img;
-    img.alt = stroke.code;
-    img.style.height = '1.2em';
-    img.style.verticalAlign = 'middle';
-    button.appendChild(img);
-    
-    const tooltip = document.createElement('span');
-    tooltip.className = 'tooltip';
-    tooltip.textContent = stroke.code;
-    button.appendChild(tooltip);
-    container.appendChild(button);
-});
+    strokeData.forEach(stroke => {
+        const button = document.createElement('button');
+        button.className = 'stroke-button';
+        button.onclick = () => insertStroke(stroke.code);
+        
+        // 使用图片显示笔画
+        const img = document.createElement('img');
+        img.src = stroke.img;
+        img.alt = stroke.code;
+        img.style.height = '1.2em';
+        img.style.verticalAlign = 'middle';
+        button.appendChild(img);
+        
+        const tooltip = document.createElement('span');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = stroke.code;
+        button.appendChild(tooltip);
+        container.appendChild(button);
+    });
 }
-
-// 监听笔画输入框的变化
-document.getElementById('stroke-entry-field').addEventListener('input', (e) => {
-    updateSearchResults(e.target.value);
-});
 
 // 切换复选框状态的函数
 function toggleCheckbox(id) {
     const checkbox = document.getElementById(id);
     checkbox.checked = !checkbox.checked;
-    updateSearchResults(document.getElementById('stroke-entry-field').value);
+    clearEntryField(null);
+    updateCodeEntry(document.getElementById('stroke-entry-field'),
+        CodeInputKind.STROKE);
 }
 
 // 清除笔画输入
-function clearStrokeEntryField() {
-    document.getElementById('stroke-entry-field').value = '';
+function clearEntryField(field) {
+    if (!!field) {
+        field.value = '';
+    }
+    document.getElementById('rollover-info').innerHTML = '';
     document.getElementById('result-list').innerHTML = '';
 }
 
@@ -1140,6 +1137,9 @@ function clearAll() {
     document.getElementById('outputHisState').value = '';
     document.getElementById('output-text').value = '';
     document.getElementById('stroke-entry-field').value = '';
+    document.getElementById('lfw-entry-field').value = '';
+    document.getElementById('fourcode-entry-field').value = '';
+    document.getElementById('unicode-entry-field').value = '';
     document.getElementById('result-list').innerHTML = '';
     // 重置复选框
     document.getElementById('stroke-begins-with').checked = false;
@@ -1167,15 +1167,16 @@ function undoStrokeOutput() {
     }  
 }
 
+/*
 // 添加 updateSearchResults 函数定义
-function updateSearchResults(value) {
+function updateSearchResults(field, inputKind) {
     const resultList = document.getElementById('result-list');
     resultList.innerHTML = ''; // 清空现有结果
     
-    if (!value) return; // 如果没有输入值，直接返回
+    if (!field?.value) return; // 如果没有输入值，直接返回
     
-    // 更新笔画输入（这会触发 txglook.js 中的 updateStrokeEntry 函数）
-    updateStrokeEntry();
+    // 更新输入（这会触发 txglook.js 中的 updateCodeEntry 函数）
+    updateCodeEntry(field, inputKind);
     
     // 获取结果列表（resultList 应该是由 txglook.js 中的 updateResultsList 函数设置的全局变量）
     if (window.resultList && window.resultList.length > 0) {
@@ -1190,20 +1191,7 @@ function updateSearchResults(value) {
             resultList.appendChild(li);
         });
     }
-}
-
-// 修改页面加载初始化代码
-document.addEventListener('DOMContentLoaded', () => {
-    createStrokeButtons();
-    
-    // 初始化笔画输入字段的事件监听器
-    const strokeEntryField = document.getElementById('stroke-entry-field');
-    if (strokeEntryField) {
-        strokeEntryField.addEventListener('input', (e) => {
-            updateSearchResults(e.target.value);
-        });
-    }
-});
+}*/
 
 // 多语言文本数据
 const i18nData = {
@@ -1225,7 +1213,14 @@ const i18nData = {
          "show-lfw": "显示编号：",
         "lfw-label": "LFW",
         "fourcorner-label": "四角号码",
-        "stroke-entry-placeholder": "四角号码, LFW序号(四位), 部件编码(A-Q)"
+        "stroke-tab-title": "笔画",
+        "lfw-tab-title": "LFW序号",
+        "fourcode-tab-title": "四角号码",
+        "unicode-tab-title": "Unicode",
+        "stroke-entry-placeholder": "笔画编码(A-Q)",
+        "lfw-entry-placeholder": "LFW序号(四位)",
+        "fourcode-entry-placeholder": "四角号码",
+        "unicode-entry-placeholder": "Unicode编码(0-9,A-F)"
     },
     en: {
         "title": "Tangut Script<br>Annotation Tool α",
@@ -1245,7 +1240,14 @@ const i18nData = {
         "show-lfw": "Show Numbers:",
         "lfw-label": "LFW",
         "fourcorner-label": "Four Corner",
-        "stroke-entry-placeholder": "Four Corner, LFW(0000-9999), Radical(A-Q)"
+        "stroke-tab-title": "Strokes",
+        "lfw-tab-title": "LFW Code",
+        "fourcode-tab-title": "Four-Corner",
+        "unicode-tab-title": "Unicode",
+        "stroke-entry-placeholder": "Stroke(A-Q)",
+        "lfw-entry-placeholder": "LFW(0000-9999)",
+        "fourcode-entry-placeholder": "Four Corner",
+        "unicode-entry-placeholder": "Unicode(0-9,A-F)"
     },
     ja: {
         "title": "西夏文字<br>注釈ツール α",
@@ -1265,7 +1267,14 @@ const i18nData = {
         "show-lfw": "番号表示：",
         "lfw-label": "LFW",
         "fourcorner-label": "四角号碼",
-        "stroke-entry-placeholder": "四角号碼, LFW(0000-9999), 部首番号(A-Q)"
+        "stroke-tab-title": "筆画",
+        "lfw-tab-title": "LFW番号",
+        "fourcode-tab-title": "四角号碼",
+        "unicode-tab-title": "Unicode",
+        "stroke-entry-placeholder": "画数番号(A-Q)",
+        "lfw-entry-placeholder": "LFW(0000-9999)",
+        "fourcode-entry-placeholder": "四角号碼",
+        "unicode-entry-placeholder": "Unicode(0-9,A-F)"
     },
     ru: {
         "title": "Тангутское письмо<br>Инструмент для глоссирования α",
@@ -1285,9 +1294,24 @@ const i18nData = {
         "show-lfw": "Показать номера:",
         "lfw-label": "LFW",
         "fourcorner-label": "Четырём Углам",
-        "stroke-entry-placeholder": "Четырём Углам, LFW(0000-9999), Корень(A-Q)"
+        "stroke-tab-title": "Черта",
+        "lfw-tab-title": "Код LFW",
+        "fourcode-tab-title": "Четырём Углам",
+        "unicode-tab-title": "Юникод", 
+        "stroke-entry-placeholder": "Черта в иероглифике(A-Q)",
+        "lfw-entry-placeholder": "LFW(0000-9999)",
+        "fourcode-entry-placeholder": "Четырём Углам",
+        "unicode-entry-placeholder": "Юникод(A-Q)"
     }
 };
+
+// Code Input Kind
+const CodeInputKind = Object.freeze({
+  STROKE: 0,
+  LFW: 1,
+  FOURCODE: 2,
+  UNICODE: 3
+});
 
 // 更新页面文本的函数
 function updatePageText(lang) {
@@ -1312,37 +1336,56 @@ function updatePageText(lang) {
 
 // 语言切换函数
 function changeLanguage() {
-const lang = document.getElementById('languageSelect').value;
-const langMap = {
-    'zh': 'zh-CN',
-    'en': 'en-US',
-    'ja': 'ja-JP',
-    'ru': 'ru-RU'
-};
-document.documentElement.lang = langMap[lang];
-updatePageText(lang);
+    const lang = document.getElementById('languageSelect').value;
+    const langMap = {
+        'zh': 'zh-CN',
+        'en': 'en-US',
+        'ja': 'ja-JP',
+        'ru': 'ru-RU'
+    };
+    document.documentElement.lang = langMap[lang];
+    updatePageText(lang);
 }
 
-// 页面加载时初始化语言
+// 页面加载时初始化
 document.addEventListener('DOMContentLoaded', () => {
-// 只调用一次 createStrokeButtons
-createStrokeButtons();
+    // add event listner into the specified target.
+    addTabsEventListener();
+    
+    // add Field Clear Button into target areas.
+    addFieldClearButtons();
 
-// 初始化笔画输入字段的事件监听器
-const strokeEntryField = document.getElementById('stroke-entry-field');
-if (strokeEntryField) {
-    strokeEntryField.addEventListener('input', (e) => {
-        updateSearchResults(e.target.value);
-    });
-}
+    // 只调用一次 createStrokeButtons
+    createStrokeButtons();
 
-// 初始化语言
-const userLang = navigator.language.split('-')[0];
-const supportedLangs = ['zh', 'en', 'ja', 'ru'];
-const defaultLang = supportedLangs.includes(userLang) ? userLang : 'zh';
+    // Listening for each entry field.
+    const entryFields = document.querySelectorAll('.code-entry-field');
+    if (!!entryFields) {
+        entryFields.forEach((field, index) => {
+            field.addEventListener('input', (e) => {
+                updateCodeEntry(e.target, index);
+            });
+        });
+    }
 
-document.getElementById('languageSelect').value = defaultLang;
-updatePageText(defaultLang);
+
+    // Init language settings.
+    const userLang = navigator.language.split('-')[0];
+    const supportedLangs = ['zh', 'en', 'ja', 'ru'];
+    const defaultLang = supportedLangs.includes(userLang) ? userLang : 'zh';
+
+    document.getElementById('languageSelect').value = defaultLang;
+    updatePageText(defaultLang);
+
+    // set UI theme
+    const currentTheme = localStorage.getItem('theme-preference') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+        themeBtn.textContent = currentTheme === 'dark' ? '☀️ 亮色模式' : '🌙 暗黑模式';
+        themeBtn.addEventListener('click', toggleDarkMode);
+    }
+
 });
 
 // 将数字转换为上标形式的辅助函数
@@ -1382,8 +1425,6 @@ function getCharWithFourCode(char) {
 
 }
 
-// 修改现有函数中处理字符显示的部分
-
 // 在processCombination函数之前插入以下函数
 // 处理多字符连接情况下的LFW编号
 function processConnectedCharsWithLFW(char) {
@@ -1415,54 +1456,76 @@ function toggleDarkMode() {
     }
 }
 
+// add Field Clear Button inside the specified textarea or input/text
 function addFieldClearButtons() {    
     document.querySelectorAll(".has-clear").forEach(div => {
-    const field = div.querySelector(
-     ':scope > input[type="text"], :scope > textarea'
-    );
+        const field = div.querySelector(
+         ':scope > input[type="text"], :scope > textarea'
+        );
 
-    if (!field) return;
+        if (!field) return;
 
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "field-clear-btn";
-    btn.textContent = "×";
-    btn.setAttribute("aria-label", "入力内容をクリア");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "field-clear-btn";
+        btn.textContent = "×";
+        btn.setAttribute("aria-label", "入力内容をクリア");
 
-    div.appendChild(btn);
+        div.appendChild(btn);
 
-    const update = () => {
-        div.classList.toggle("has-value", !!field.value);
-    };
+        const update = () => {
+            div.classList.toggle("has-value", !!field.value);
+        };
 
-    btn.addEventListener("click", () => {
-        if (field.matches('input[type="text"]#stroke-entry-field')) {
-            clearStrokeEntryField();
-        } else if (field === document.getElementById('output')) {
-            clearAll();
-        } else {
-            field.value = "";
-        }
-        field.dispatchEvent(new Event("input", { bubbles: true }));
-        field.dispatchEvent(new Event("change", { bubbles: true }));
+        btn.addEventListener("click", () => {
+            if (field.matches('input[type="text"].code-entry-field')) {
+                clearEntryField(field);
+            } else if (field === document.getElementById('output')) {
+                clearAll();
+            } else {
+                field.value = "";
+            }
+            field.dispatchEvent(new Event("input", { bubbles: true }));
+            field.dispatchEvent(new Event("change", { bubbles: true }));
+            update();
+            field.focus();
+        });
+
+        field.addEventListener("input", update);
+        field.addEventListener("change", update);
+
         update();
-        field.focus();
-    });
-
-    field.addEventListener("input", update);
-    field.addEventListener("change", update);
-
-    update();
     });    
 }
 
-// 初始化暗黑模式按钮
-document.addEventListener('DOMContentLoaded', () => {
-    const currentTheme = localStorage.getItem('theme-preference') || 
-                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    if (themeBtn) {
-        themeBtn.textContent = currentTheme === 'dark' ? '☀️ 亮色模式' : '🌙 暗黑模式';
-        themeBtn.addEventListener('click', toggleDarkMode);
-    }
-});
+// add event listner into the specified target.
+function addTabsEventListener() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-target');
+
+            // 1. remove the actived class from all tab elements(buttons, contents).
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // 2. add active class into the selected tab.
+            button.classList.add('active');
+            const targetPane = document.getElementById(targetId);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+
+            // 3. call updateCodeEntry to update the active entry UI.
+            clearEntryField(null);
+            if (targetPane) {
+                const entryField = targetPane.querySelector('.code-entry-field');
+                updateCodeEntry(entryField, index);
+            }
+        });
+    });
+}
+
+
