@@ -6,7 +6,8 @@
 ## 功能特点
 
 - 支持西夏文字符输入和查询
-- 提供笔画检索功能
+- 提供笔画，LFW序号，四角号码检索功能，
+此外还提供Unicode编码检索功能
 - 自动生成语言学标注
 - 支持多种输出格式(Typst和Obsidian)
 - 提供中英双语解释
@@ -28,7 +29,7 @@
 
 工具提供了笔画检索功能,支持以下操作:
 
-- 使用笔画按钮输入检索序列
+- 在[笔画]Tab页使用笔画按钮输入检索序列
 - 支持起始(^)和结束($)位置限定
 - 支持通配符(*)
 - 实时显示检索结果
@@ -51,6 +52,30 @@
 - O: 撇点提 <img src="img/O.png" alt="O" style="height:1em; vertical-align:baseline" />
 - P: 撇捺 <img src="img/P.png" alt="P" style="height:1em; vertical-align:baseline" />
 - Q: 捺 <img src="img/Q.png" alt="Q" style="height:1em; vertical-align:baseline" />
+
+### LFW序号检索
+
+工具提供了LFW序号(即夏汉字典的编码顺序)的检索功能,支持以下操作:
+
+- 在[LFW序号]Tab页输入4位LFW序号（0-9的数字）
+- 暂不支持任何通配符
+- 实时显示检索结果
+
+### 四角号码检索
+
+工具提供了四角号码(类似于汉字的四角号码)的检索功能,支持以下操作:
+
+- 在[四角号码]Tab页输入4-6位四角号码（0-9的数字）
+- 支持2-3位的通配符(?)
+- 实时显示检索结果
+
+### Unicode编码检索
+
+工具提供了Unicode编码的检索功能,支持以下操作:
+
+- 在[Unicode]Tab页输入4位以上的Unicode码位（0-9, A-F的字符）
+- 暂不支持任何通配符
+- 实时显示检索结果
 
 ## 技术特性
 
@@ -93,7 +118,8 @@ This is an online tool for annotating Tangut text that helps researchers and lea
 ## Features
 
 - Support for Tangut character input and lookup
-- Stroke-based search functionality  
+- Provides stroke-based, LFW code, and Four-Corner code 
+search, as well as Unicode search.
 - Automatic linguistic annotation generation
 - Multiple output formats (Typst and Obsidian)
 - Bilingual explanations (Chinese/English)
@@ -115,9 +141,9 @@ This is an online tool for annotating Tangut text that helps researchers and lea
 
 The tool provides stroke-based search with the following features:
 
-- Use stroke buttons to input search sequences
+- Use stroke buttons to input search sequences in the \[Strokes\] tab
 - Support for start (^) and end ($) position markers
-- Wildcard (*) support
+- Wildcard (\*) support
 - Real-time search results
 
 Available stroke codes:
@@ -138,6 +164,30 @@ Available stroke codes:
 - O: Falling-dot-rising <img src="img/O.png" alt="O" style="height:1em; vertical-align:baseline" />
 - P: Falling-rising <img src="img/P.png" alt="P" style="height:1em; vertical-align:baseline" />
 - Q: Rising <img src="img/Q.png" alt="Q" style="height:1em; vertical-align:baseline" />
+
+### LFW Code Search
+
+The tool provides search by LFW code (the numbering sequence used in the _Tangraphic Sea_ dictionary) with the following features:
+
+- Enter a 4-digit LFW code (digits 0-9) in the \[LFW Code\] tab
+- Wildcards are not currently supported
+- Real-time search results
+
+### Four-Corner Code Search
+
+The tool provides search by Four-Corner codes (similar to the Four-Corner Method used for Chinese characters) with the following features:
+
+- Enter a 4-6 digits Four-Corner code (digits 0-9) in the \[Four-Corner Code\] tab
+- Supports wildcards (?) consisting of 2-3 digits
+- Real-time search results
+
+### Unicode Search
+
+The tool provides search by Unicode code point with the following features:
+
+- Enter a Unicode code point of at least 4 hexadecimal digits (0-9, A-F) in the \[Unicode\] tab
+- Wildcards are not currently supported
+- Real-time search results
 
 ## Technical Features
 

@@ -8,8 +8,21 @@ const elements = {
     resultList: document.getElementById('result-list'),
     strokeEntryField: document.getElementById('stroke-entry-field'),
     strokeBeginsWith: document.getElementById('stroke-begins-with'),
-    strokeEndsWith: document.getElementById('stroke-ends-with')
+    strokeEndsWith: document.getElementById('stroke-ends-with'),
+    lfwEntryField: document.getElementById('lfw-entry-field'),
+    fourcodeEntryField: document.getElementById('fourcode-entry-field'),
+    unicodeEntryField: document.getElementById('unicode-entry-field')
 };
+
+/* Code Input Kind */
+if (typeof CodeInputKind === 'undefined') {
+    const CodeInputKind = Object.freeze({
+      STROKE: 0,
+      LFW: 1,
+      FOURCODE: 2,
+      UNICODE: 3
+    });
+}
 
 /* State */
 let results = [];
@@ -113,17 +126,26 @@ function isDataAvailable() {
 /**
  * Update results list based on current filters
  */
-function updateResultsList() {
+function updateResultsList(field, inputKind) {
     if (!isDataAvailable()) {
         console.warn('Tangraph data not yet available');
         return;
     }
 
-    const strokeValue = elements.strokeEntryField?.value || '';
-    // if code value length is less than 3, then do nothing.
-    const isUnder4Digits = !!strokeValue && (/^\d{1,3}$/.test(strokeValue));
+    // specail code patterns (LFW code or Four Corner code)
+    const isValidFourCode = inputKind == CodeInputKind.FOURCODE;
+    const isLFWCode = inputKind == CodeInputKind.LFW;
+    const isUnicode = inputKind == CodeInputKind.UNICODE;
+    const isSpecialCode = isValidFourCode || isLFWCode || isUnicode;
 
-    if (!strokeValue || isUnder4Digits) {
+    let codeValue = field?.value || '';
+    if (isLFWCode) {
+        codeValue = "L" + codeValue;
+    } else if (isUnicode) {
+        codeValue = "U+" + codeValue;
+    }
+
+    if (!codeValue) {
         // Default sorting by score when no input
         results = Object.keys(tangraphInfo)
             .filter(key => tangraphScores[key] > 0)
@@ -133,40 +155,46 @@ function updateResultsList() {
     }
 
     // Build regex pattern
-    let strokesRegex = strokeValue.replace('*', '.*');
-    if (elements.strokeBeginsWith?.checked) strokesRegex = `^${strokesRegex}`;
-    if (elements.strokeEndsWith?.checked) strokesRegex += '$';
+    let regex = codeValue.replace('*', '.*');
+    if (isSpecialCode) {
+        regex = codeValue.replace(/[.*+^${}()|[\]\\]/g, "\\$&").replace(/\?/g, ".");
+    } else {
+        if (elements.strokeBeginsWith?.checked) regex = `^${regex}`;
+        if (elements.strokeEndsWith?.checked) regex += '$';
+    }
 
-    // specail code patterns (LFW code or Four Corner code)
-    const isValidFourCode = strokeValue.length >= 4 && /^\d+$/.test(strokeValue);
-    const isLFWCode = strokeValue.length === 5 && strokeValue.startsWith("L");
-    const isSpecialCode = isValidFourCode || isLFWCode;
-
+    // Searches for matching strings(Tangut characters) using a regular expression based 
+    // on the input code.
     const startsWithSeq = [];
     const containsSeq = [];
+    const maxChars = 80;
 
     try {
-        const pattern = new RegExp(strokesRegex);
-        const startPattern = new RegExp(`^${strokesRegex}`);
+        const pattern = new RegExp(regex);
+        const startPattern = new RegExp(`^${regex}`);
 
         let logCount = 0;
         Object.entries(tangraphInfo).forEach(([tangraph, info]) => {
-            // - If the input code (=strokeValue) is a valid LFW code or 4+ digit's Four Corner 
+            // - If the input code (=codeValue) is a valid LFW code or 4+ digit's Four Corner 
             //     code, search for the corresponding character from info[3] using them as keys.
             // - Otherwise, treat it as an existing radical code, and 
             //     search for the corresponding character from info[2] based on that radical. 
+            if (startsWithSeq.length + containsSeq.length > maxChars) {
+                // limit the cont of result list
+                return;
+            }
             if (isSpecialCode) {
-                const strokeSeq = info[3];
-                const codes = strokeSeq.split(/\s+/);
+                const specialCodeInfo = info[3];
+                const codes = specialCodeInfo.split(/\s+/);
                 const isMatch = codes.some(code => startPattern.test(code));
-                if (isMatch) {
+                if (!!isMatch) {
                     startsWithSeq.push(tangraph);
                 }
             } else {
-                const strokeSeq = info[2];
-                if (startPattern.test(strokeSeq)) {
+                const strokeInfo = info[2];
+                if (startPattern.test(strokeInfo)) {
                     startsWithSeq.push(tangraph);
-                } else if (pattern.test(strokeSeq)) {
+                } else if (pattern.test(strokeInfo)) {
                     containsSeq.push(tangraph);
                 }
             }
@@ -189,7 +217,7 @@ function toggleCheckbox(id) {
     const checkbox = document.getElementById(id);
     if (checkbox) {
         checkbox.checked = !checkbox.checked;
-        updateStrokeEntry();
+        updateCodeEntry(elements.strokeEntryField, CodeInputKind.STROKE);
     }
 }
 /**
@@ -199,33 +227,50 @@ function toggleCheckbox(id) {
 function insertStroke(stroke) {
     const field = elements.strokeEntryField;
     field.value += stroke;
-    updateStrokeEntry();
+    updateCodeEntry(field, CodeInputKind.STROKE);
     // show Field Clear Button if need
     updateFieldClearState(field);
 }
 
 /**
- * Updates the stroke entry field
+ * Updates the code entry field
  */
-function updateStrokeEntry() {
-    if (!elements.strokeEntryField) return;
+function updateCodeEntry(field, inputKind) {
+    if (!field || !field.value) return;
 
-    let val = elements.strokeEntryField.value.toUpperCase();
+    let val = field.value.toUpperCase();
+    let shouldUpdateResults = false; 
 
-    // 1. If the first character is 'L': Allow 'L' followed by up to 4 digits (L0000 format).
-    if (val.startsWith('L')) {
-        const match = val.match(/^L[0-9]{0,4}/);
-        val = match ? match[0] : 'L';
+    // 1. If `inputKind` is LFW: Allow 'L' followed by up to 4 digits (L0000 format).
+    if (inputKind == CodeInputKind.LFW) {
+        const match = val.match(/^[0-9]{0,4}/);
+        val = !!match ? match[0] : '';
+        shouldUpdateResults = val.length >= 4;       
     }
-    // 2. If the first character is a digit: Allow digits only, up to a maximum of 6 digits.
-    else if (/^[0-9]/.test(val)) {
-        const match = val.match(/^[0-9]{0,6}/);
-        val = match ? match[0] : '';
+    // 2. If `inputKind` is FOURCODE: Allow digits or "?", up to a maximum of 6 digits.
+    else if (inputKind == CodeInputKind.FOURCODE) {
+        let match = val.match(/\?/g) || [];
+        if ((val.length <=4 && match.length > 2) 
+            || val.length > 4 && match.length > 3) {
+            val = val.substring(0, val.length - 1);
+        }
+        match = val.match(/^[0-9?]{0,6}/);
+        val = !!match ? match[0] : '';
+        shouldUpdateResults = val.length >= 4;       
     }
-    // 3. If the first character is between 'A' and 'Q': Allow alphabetic characters only (no length limit, numbers prohibited).
-    else if (/^[A-Q]/.test(val)) {
+    // 3. If `inputKind` is STROKE: then value should be in between 'A' and 'Q': 
+    // Allow alphabetic characters only (no length limit, numbers prohibited).
+    else if (inputKind == CodeInputKind.STROKE) {
         const match = val.match(/^[A-Q]+/);
-        val = match ? match[0] : '';
+        val = !!match ? match[0] : '';
+        shouldUpdateResults = val.length >= 2;       
+    }
+    // 4. If `inputKind` is UNICODE: then value should be in between 0-9, 'A' and 'F': 
+    // Allow alphabetic characters only (no length limit, numbers prohibited).
+    else if (inputKind == CodeInputKind.UNICODE) {
+        const match = val.match(/^[0-9A-F]{0,5}/);
+        val = !!match ? match[0] : '';
+        shouldUpdateResults = val.length >= 4;       
     }
     // 4. Clear the input for any other unauthorized characters.
     else {
@@ -233,8 +278,19 @@ function updateStrokeEntry() {
     }
 
     // Reflect the validated value in the input field and update the results list.
-    elements.strokeEntryField.value = val;
-    updateResultsList();
+    field.value = val;
+    if (!val) {
+        updateFieldClearState(field);
+    }
+    // Update the relevant result list based on the current input type's update availability.
+    // Update conditions (using the above local var `shouldUpdateResults`):
+    // - Stroke entry: 2+ alphabetic characters
+    // - LFW entry: 4 digits
+    // - Four-Corner entry: 4+ digits
+    // - Unicode entry: 4+ alphanumeric characters
+    if (shouldUpdateResults) {
+        updateResultsList(field, inputKind);
+    }
 }
 
 /**
@@ -248,15 +304,6 @@ function updateFieldClearState(field) {
     }    
 }
 
-/**
- * Clear stroke entry field and update results
- */
-function clearStrokeEntryField() {
-    if (!elements.strokeEntryField) return;
-    elements.strokeEntryField.value = '';
-    updateResultsList();
-}
-
 
 /**
  * Initialize application
@@ -264,20 +311,26 @@ function clearStrokeEntryField() {
 function init() {
     // Add event listeners only if elements exist
     if (elements.strokeEntryField) {
-        elements.strokeEntryField.addEventListener('keyup', updateStrokeEntry);
+        elements.strokeEntryField.addEventListener('keyup', (event) => {
+            updateCodeEntry(elements.strokeEntryField, CodeInputKind.STROKE);
+        });
     }
 
     if (elements.strokeBeginsWith) {
-        elements.strokeBeginsWith.addEventListener('change', updateStrokeEntry);
+        elements.strokeBeginsWith.addEventListener('change', (event) => {
+            updateCodeEntry(elements.strokeEntryField, CodeInputKind.STROKE);
+        });
     }
 
     if (elements.strokeEndsWith) {
-        elements.strokeEndsWith.addEventListener('change', updateStrokeEntry);
+        elements.strokeEndsWith.addEventListener('change', (event) => {
+            updateCodeEntry(elements.strokeEntryField, CodeInputKind.STROKE);
+        });
     }
 
     // Wait for data to be available before initial update
     if (isDataAvailable()) {
-        updateResultsList();
+        updateResultsList(elements.strokeEntryField, CodeInputKind.STROKE);
     } else {
         console.warn('Waiting for tangraph data to be loaded...');
     }
