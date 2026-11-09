@@ -14,12 +14,14 @@
       {
           "src": "./icons/favicon-16x16.png",
           "sizes": "16x16",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any"
       },
       {
           "src": "./icons/favicon-32x32.png",
           "sizes": "32x32",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any"
       },
       {
           "src": "./icons/pwa-192x192.png",
@@ -44,28 +46,64 @@
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "maskable"
-      },
-      {
-          "src": "./icons/apple-touch-icon.png",
-          "sizes": "180x180",
-          "type": "image/png",
-          "purpose": "apple-touch-icon"
       }
   ],
   "screenshots": [
     {
-      "src": "screenshots/desktop.png",
+      "src": "screenshots/desktop_1886x1294_1.png",
       "sizes": "1886×1294",
       "type": "image/png",
       "platform": "wide",
-      "label": "Desktop view of Tangut Script Annotation Tool"
+      "label": "Desktop view of Tangut Script Annotation Tool (1)"
     },
     {
-      "src": "screenshots/mobile.png",
+      "src": "screenshots/desktop_1886x1294_2.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (2)"
+    },
+    {
+      "src": "screenshots/desktop_1886x1294_3.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (3)"
+    },
+    {
+      "src": "screenshots/desktop_1886x1294_4.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (4)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_1.png",
       "sizes": "428×926",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Mobile view of Tangut Script Annotation Tool"
+      "label": "Mobile view of Tangut Script Annotation Tool (1)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_2.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (2)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_3.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (3)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_4.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (4)"
     }
   ],
   "shortcuts": [
@@ -74,7 +112,7 @@
       "short_name": "西夏文标注",
       "description": "打开西夏文标注工具",
       "url": "./Tangut-Script-Annotation-Tool",
-      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "icons/pwa-192x192.png", "sizes": "192x192" }]
     }
   ],
   "share_target": {
