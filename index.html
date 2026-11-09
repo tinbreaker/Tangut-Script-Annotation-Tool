@@ -73,14 +73,14 @@
         rel="stylesheet">
     <link rel="canonical" href="https://tinbreaker.github.io/Tangut-Script-Annotation-Tool/">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="./sitemap.xml">
-    <link rel="icon" href="./icons/apple-touch-icon.png">
-    <link rel="icon" href="./icons/pwa-maskable-192x192" type="image/png" sizes="192x192">
-    <link rel="icon" href="./icons/pwa-maskable-512x512" type="image/png" sizes="512x512">
+    <link rel="icon" href="./icons/pwa-maskable-192x192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="./icons/pwa-maskable-512x512.png" type="image/png" sizes="512x512">
     <link rel="icon" href="./icons/favicon-32x32.png" type="image/png" sizes="32x32">
     <link rel="icon" href="./icons/favicon-16x16.png" type="image/png" sizes="16x16">
     <link rel="icon" href="./icons/pwa-192x192.png" type="image/png" sizes="192x192">
     <link rel="icon" href="./icons/pwa-512x512.png" type="image/png" sizes="512x512">
-    <link rel="icon" href="./icons/favicon.ico" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="./icons/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">    
     <link rel="manifest" href="./site.webmanifest">
 
     <script type="application/ld+json">
@@ -117,7 +117,7 @@
             --text-color: #333;
             --border-radius: 8px;
             --min-container-width: 420px;
-            --max-container-width: 1050px;
+            --max-container-width: 100%;
             --standard-padding: 20px;
         }
 
@@ -230,6 +230,7 @@
             border: none;
             border-radius: var(--border-radius);
             background-color: var(--primary-color);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
             color: white;
             font-weight: 500;
             cursor: pointer;
@@ -351,6 +352,8 @@
             border: 1px solid #e1e4e8;
             border-radius: var(--border-radius);
             background-color: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+
             /* 改善触摸体验 */
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
@@ -360,6 +363,15 @@
             max-width: 100%;
             max-height: 1.5em;
             display: block;
+            -webkit-filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 100));
+            filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 100));
+        }
+
+        @supports (-webkit-touch-callout: none) {
+          .stroke-button img {
+            -webkit-filter: drop-shadow(0 0px 1px rgba(0, 0, 0, 100));
+            filter: drop-shadow(0 0px 1px rgba(0, 0, 0, 100));
+          }
         }
 
         .stroke-button:hover {
@@ -473,6 +485,7 @@
             z-index: 2;
             display: none;
             box-sizing: border-box;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.0);
             width: 26px;
             height: 26px;
             padding: 0;
@@ -569,6 +582,7 @@
             border: none;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.0);
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -582,7 +596,7 @@
             color: #0066cc;
             background-color: #ffffff;
             font-weight: 600;
-            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
             border-bottom: 2px solid #ffffff;
             margin-bottom: -1px;
         }
@@ -598,7 +612,7 @@
             min-width: 0px;
             max-width: ;
             background: var(--secondary-color);
-            padding: clamp(15px, 2vw, 20px);
+            padding: clamp(5px, 5vw, 20px);
             border-radius: var(--border-radius);
             box-sizing: border-box;
         }
