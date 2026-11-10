@@ -2,7 +2,7 @@
   "name": "西夏文自动标注工具",
   "short_name": "西夏文标注",
   "description": "西夏文自动标注工具是一个在线工具，帮助用户处理和研究西夏文字。支持西夏文字的笔画输入、语音语法标注，并提供中英双语输出。",
-  "start_url": "./Tangut-Script-Annotation-Tool",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#4a90e2",
@@ -53,56 +53,56 @@
       "src": "screenshots/desktop_1886x1294_1.png",
       "sizes": "1886×1294",
       "type": "image/png",
-      "platform": "wide",
+      "form_factor": "wide",
       "label": "Desktop view of Tangut Script Annotation Tool (1)"
     },
     {
       "src": "screenshots/desktop_1886x1294_2.png",
       "sizes": "1886×1294",
       "type": "image/png",
-      "platform": "wide",
+      "form_factor": "wide",
       "label": "Desktop view of Tangut Script Annotation Tool (2)"
     },
     {
       "src": "screenshots/desktop_1886x1294_3.png",
       "sizes": "1886×1294",
       "type": "image/png",
-      "platform": "wide",
+      "form_factor": "wide",
       "label": "Desktop view of Tangut Script Annotation Tool (3)"
     },
     {
       "src": "screenshots/desktop_1886x1294_4.png",
       "sizes": "1886×1294",
       "type": "image/png",
-      "platform": "wide",
+      "form_factor": "wide",
       "label": "Desktop view of Tangut Script Annotation Tool (4)"
     },
     {
       "src": "screenshots/mobile_428x926_1.png",
       "sizes": "428×926",
       "type": "image/png",
-      "platform": "narrow",
+      "form_factor": "narrow",
       "label": "Mobile view of Tangut Script Annotation Tool (1)"
     },
     {
       "src": "screenshots/mobile_428x926_2.png",
       "sizes": "428×926",
       "type": "image/png",
-      "platform": "narrow",
+      "form_factor": "narrow",
       "label": "Mobile view of Tangut Script Annotation Tool (2)"
     },
     {
       "src": "screenshots/mobile_428x926_3.png",
       "sizes": "428×926",
       "type": "image/png",
-      "platform": "narrow",
+      "form_factor": "narrow",
       "label": "Mobile view of Tangut Script Annotation Tool (3)"
     },
     {
       "src": "screenshots/mobile_428x926_4.png",
       "sizes": "428×926",
       "type": "image/png",
-      "platform": "narrow",
+      "form_factor": "narrow",
       "label": "Mobile view of Tangut Script Annotation Tool (4)"
     }
   ],
