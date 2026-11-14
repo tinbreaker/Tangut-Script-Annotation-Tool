@@ -1,8 +1,7 @@
 {
   "name": "西夏文自动标注工具",
   "short_name": "西夏文标注",
-  "description": "西夏文自动标注工具是一个在线工具，旨在帮助用户处理和研究西夏文字。目前支持通过笔画、LFW序号、四角号码和Unicode码位四种方式输入西夏文字，并提供语音、语法标注以及语义信息的中英双语输出。
-  The Tangut Script Annotation Tool is an online tool designed to help users process and study the Tangut script. It currently supports four input methods for Tangut characters: stroke-based input, LFW codes, Four-Corner Codes, and Unicode code points. It also provides bilingual Chinese-English output with phonetic and grammatical annotations, as well as semantic information.",
+  "description": "A tool for studying Tangut. Supports 4 input methods(strokes,LFW codes,Four-Corner codes,Unicode), provides phonetic, grammatical, bilingual semantic annotations. 此工具是一款在线西夏文字研究工具，支持笔画、LFW序号、四角号码和Unicode输入，并提供语音、语法标注及中英双语语义输出。",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f9fafb",
