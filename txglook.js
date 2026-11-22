@@ -132,7 +132,7 @@ function updateResultsList(field, inputKind) {
         return;
     }
 
-    // specail code patterns (LFW code or Four Corner code)
+    // special code patterns (LFW code or Four Corner code)
     const isValidFourCode = inputKind == CodeInputKind.FOURCODE;
     const isLFWCode = inputKind == CodeInputKind.LFW;
     const isUnicode = inputKind == CodeInputKind.UNICODE;
@@ -144,7 +144,6 @@ function updateResultsList(field, inputKind) {
     } else if (isUnicode) {
         codeValue = "U+" + codeValue;
     }
-
     if (!codeValue) {
         // Default sorting by score when no input
         results = Object.keys(tangraphInfo)
@@ -170,6 +169,15 @@ function updateResultsList(field, inputKind) {
     const maxChars = 80;
 
     try {
+        const getSortItems = (array, startIndex, count, key) => {
+            const items = [
+                ...[key],
+                ...array.slice(startIndex, startIndex + count),
+                ...Array(Math.max(0, count - (array.length - startIndex))).fill(""),
+              ];
+            return items;
+        };
+
         const pattern = new RegExp(regex);
         const startPattern = new RegExp(`^${regex}`);
 
@@ -188,25 +196,82 @@ function updateResultsList(field, inputKind) {
                 const codes = specialCodeInfo.split(/\s+/);
                 const isMatch = codes.some(code => startPattern.test(code));
                 if (!!isMatch) {
-                    startsWithSeq.push(tangraph);
+                    startsWithSeq.push(getSortItems(codes, 0, 3, tangraph));
                 }
             } else {
                 const strokeInfo = info[2];
+                const codes = info[3].split(/\s+/);
                 if (startPattern.test(strokeInfo)) {
-                    startsWithSeq.push(tangraph);
+                    startsWithSeq.push(getSortItems(codes, 0, 3, tangraph));
                 } else if (pattern.test(strokeInfo)) {
-                    containsSeq.push(tangraph);
+                    containsSeq.push(getSortItems(codes, 0, 3, tangraph));
                 }
             }
         });
 
-        results = [...startsWithSeq, ...containsSeq];
+        const tempResults = [...startsWithSeq, ...containsSeq];
+        if (inputKind == CodeInputKind.LFW) {
+            // sort by LFW -> FOURCODE -> UNICODE
+            results = sortTangutCharData(array = tempResults, key1 = 3, key2 = 2, key3 = 1);
+        } else if (inputKind == CodeInputKind.FOURCODE || inputKind == CodeInputKind.STROKE) {
+            // sort by FOURCODE -> LFW -> UNICODE
+            results = sortTangutCharData(array = tempResults, key1 = 2, key2 = 3, key3 = 1);
+        } else {
+            // sort by UNICODE -> LFW -> FOURCODE
+            results = sortTangutCharData(array = tempResults, key1 = 1, key2 = 3, key3 = 2);
+        }
         updatePageResults();
     } catch (error) {
         console.error('Invalid regex pattern:', error);
         results = [];
         updatePageResults();
     }
+}
+
+/**
+ * Sorts a two-dimensional array by multiple keys and
+ * returns only the first element of each row.
+ *
+ * @param {Array} data       A two-dimensional array.
+ * @param {number} key1      The primary sort key (default: 0).
+ * @param {number} key2      The secondary sort key (default: 1).
+ * @param {number} key3      The secondary sort key (default: 2).
+ * @returns {Array}          An array of the first elements after sorting.
+ * 
+ * @example
+ * const data = [["𗀜","U+1701C","102252","L0043"], 
+ *  ["𗀪","U+1702A","104124", "L0085"], ...];
+ * 
+ * const results = sortTangutCharData(data, 2, 3, 1);
+ */
+function sortTangutCharData(data, key1 = 0, key2 = 1, key3 = 2) {
+
+    // Copy the original array to avoid mutating it, then sort the copy.
+    const sorted = [...data].sort((a, b) => {
+
+        // Compare by the primary sort key.
+        if (!!a[key1] && !!b[key1]) {
+            if (a[key1] < b[key1]) return -1;
+            if (a[key1] > b[key1]) return 1;            
+        }
+
+        // If the primary keys are equal, compare by the secondary key.
+        if (!!a[key2] && !!b[key2]) {
+            if (a[key2] < b[key2]) return -1;
+            if (a[key2] > b[key2]) return 1;
+        }
+
+        // If the second keys are equal, compare by the third key.
+        if (!!a[key3] && !!b[key3]) {
+            if (a[key3] < b[key3]) return -1;
+            if (a[key3] > b[key3]) return 1;
+        }
+
+        return 0;
+    });
+
+    // Extract only the first element of each row.
+    return sorted.map(row => row[0]);
 }
 
 /**
@@ -245,7 +310,7 @@ function updateCodeEntry(field, inputKind) {
     if (inputKind == CodeInputKind.LFW) {
         const match = val.match(/^[0-9]{0,4}/);
         val = !!match ? match[0] : '';
-        shouldUpdateResults = val.length >= 4;       
+        shouldUpdateResults = val.length >= 3;       
     }
     // 2. If `inputKind` is FOURCODE: Allow digits or "?", up to a maximum of 6 digits.
     else if (inputKind == CodeInputKind.FOURCODE) {
@@ -285,7 +350,7 @@ function updateCodeEntry(field, inputKind) {
     // Update the relevant result list based on the current input type's update availability.
     // Update conditions (using the above local var `shouldUpdateResults`):
     // - Stroke entry: 2+ alphabetic characters
-    // - LFW entry: 4 digits
+    // - LFW entry: 3+ digits
     // - Four-Corner entry: 4+ digits
     // - Unicode entry: 4+ alphanumeric characters
     if (shouldUpdateResults) {

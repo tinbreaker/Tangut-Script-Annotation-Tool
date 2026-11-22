@@ -57,8 +57,8 @@
 
 工具提供了LFW序号(即夏汉字典的编码顺序)的检索功能,支持以下操作:
 
-- 在[LFW序号]Tab页输入4位LFW序号（0-9的数字）
-- 暂不支持任何通配符
+- 在[LFW序号]Tab页输入3位以上LFW序号（0-9的数字）
+- 不支持任何通配符
 - 实时显示检索结果
 
 ### 四角号码检索
@@ -169,7 +169,7 @@ Available stroke codes:
 
 The tool provides search by LFW code (the numbering sequence used in the _Tangraphic Sea_ dictionary) with the following features:
 
-- Enter a 4-digit LFW code (digits 0-9) in the \[LFW Code\] tab
+- Enter a 3+ digit LFW code (digits 0-9) in the \[LFW Code\] tab
 - Wildcards are not currently supported
 - Real-time search results
 

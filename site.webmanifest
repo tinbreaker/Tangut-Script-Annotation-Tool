@@ -1,8 +1,8 @@
 {
   "name": "西夏文自动标注工具",
   "short_name": "西夏文标注",
-  "description": "西夏文自动标注工具是一个在线工具，帮助用户处理和研究西夏文字。支持西夏文字的笔画输入、语音语法标注，并提供中英双语输出。",
-  "start_url": "./Tangut-Script-Annotation-Tool",
+  "description": "A tool for studying Tangut. Supports 4 input methods(strokes,LFW codes,Four-Corner codes,Unicode), provides phonetic, grammatical, bilingual semantic annotations. 此工具是一款在线西夏文字研究工具，支持笔画、LFW序号、四角号码和Unicode输入，并提供语音、语法标注及中英双语语义输出。",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#4a90e2",
@@ -14,12 +14,14 @@
       {
           "src": "./icons/favicon-16x16.png",
           "sizes": "16x16",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any"
       },
       {
           "src": "./icons/favicon-32x32.png",
           "sizes": "32x32",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any"
       },
       {
           "src": "./icons/pwa-192x192.png",
@@ -44,28 +46,64 @@
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "maskable"
-      },
-      {
-          "src": "./icons/apple-touch-icon.png",
-          "sizes": "180x180",
-          "type": "image/png",
-          "purpose": "apple-touch-icon"
       }
   ],
   "screenshots": [
     {
-      "src": "screenshots/desktop.png",
+      "src": "screenshots/desktop_1886x1294_1.png",
       "sizes": "1886×1294",
       "type": "image/png",
-      "platform": "wide",
-      "label": "Desktop view of Tangut Script Annotation Tool"
+      "form_factor": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (1)"
     },
     {
-      "src": "screenshots/mobile.png",
+      "src": "screenshots/desktop_1886x1294_2.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (2)"
+    },
+    {
+      "src": "screenshots/desktop_1886x1294_3.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (3)"
+    },
+    {
+      "src": "screenshots/desktop_1886x1294_4.png",
+      "sizes": "1886×1294",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of Tangut Script Annotation Tool (4)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_1.png",
       "sizes": "428×926",
       "type": "image/png",
-      "platform": "narrow",
-      "label": "Mobile view of Tangut Script Annotation Tool"
+      "form_factor": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (1)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_2.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (2)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_3.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (3)"
+    },
+    {
+      "src": "screenshots/mobile_428x926_4.png",
+      "sizes": "428×926",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of Tangut Script Annotation Tool (4)"
     }
   ],
   "shortcuts": [
@@ -74,7 +112,7 @@
       "short_name": "西夏文标注",
       "description": "打开西夏文标注工具",
       "url": "./Tangut-Script-Annotation-Tool",
-      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "icons/pwa-192x192.png", "sizes": "192x192" }]
     }
   ],
   "share_target": {

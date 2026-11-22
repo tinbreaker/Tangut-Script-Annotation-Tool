@@ -1141,6 +1141,7 @@ function clearAll() {
     document.getElementById('fourcode-entry-field').value = '';
     document.getElementById('unicode-entry-field').value = '';
     document.getElementById('result-list').innerHTML = '';
+    document.getElementById('rollover-info').innerHTML = '';
     // 重置复选框
     document.getElementById('stroke-begins-with').checked = false;
     document.getElementById('stroke-ends-with').checked = false;
@@ -1166,32 +1167,6 @@ function undoStrokeOutput() {
         outputHisState.value = "";
     }  
 }
-
-/*
-// 添加 updateSearchResults 函数定义
-function updateSearchResults(field, inputKind) {
-    const resultList = document.getElementById('result-list');
-    resultList.innerHTML = ''; // 清空现有结果
-    
-    if (!field?.value) return; // 如果没有输入值，直接返回
-    
-    // 更新输入（这会触发 txglook.js 中的 updateCodeEntry 函数）
-    updateCodeEntry(field, inputKind);
-    
-    // 获取结果列表（resultList 应该是由 txglook.js 中的 updateResultsList 函数设置的全局变量）
-    if (window.resultList && window.resultList.length > 0) {
-        window.resultList.forEach(char => {
-            const li = document.createElement('li');
-            li.className = 'results-item';
-            li.textContent = char;
-                            
-            // 添加点击事件
-            li.setAttribute('onclick', `insertAtCursor('output', '${char}')`);
-            
-            resultList.appendChild(li);
-        });
-    }
-}*/
 
 // 多语言文本数据
 const i18nData = {
